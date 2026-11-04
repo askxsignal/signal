@@ -121,7 +121,7 @@ function run(s: DemoState, tool: string, input: Record<string, any>) {
 // giving them away. Production checks the real list in the database (secret_codes, migration 0005).
 // Secret phrases: SHA-256 hashes only (the live list is in the database). None ship with the repo.
 const DEMO_CODES: Record<string, number> = {}
-const normCode = (t: string) => t.toLowerCase().replace(/[^a-z0-9а-яё$]+/g, ' ').trim()
+const normCode = (t: string) => t.toLowerCase().replace(/[^a-z0-9\u0430-\u044f\u0451$]+/g, ' ').trim()
 async function sha256(t: string) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t))
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')

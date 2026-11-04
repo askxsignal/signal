@@ -1,9 +1,9 @@
--- glyph — the mint needs the trials done: follow, like, repost, reply and the card quote (params.mint).
+-- signal — the mint needs the trials done: follow, like, repost, reply and the card quote (params.mint).
 -- Run after 0011. Safe to run more than once.
 --
 -- Like / repost / reply are new tasks on the pinned post (shared/brand.mjs → postId): everyone does them
 -- again, including people who did the old ones (the old tasks are switched off, rewards already earned stay,
--- the new ones pay again). Follow and the card quote stay done for those who did them, so old divers redo
+-- the new ones pay again). Follow and the card quote stay done for those who did them, so old operators redo
 -- three trials and newcomers do all five. /mintallo hands them out one by one, and the server refuses to
 -- mint until all of them are done.
 -- To open minting for everyone (after creating the big tree, see docs/OPERATIONS.md):
@@ -12,7 +12,7 @@
 insert into tasks (id, type, title, action_url, reward, verification, min_wait_sec, params, required, sort) values
   ('like-3',   'like',   'Like the pinned post',   'https://x.com/intent/like?tweet_id={post}',    250, 'timer', 5, '{"mint": true}', true, 2),
   ('repost-3', 'repost', 'Repost the pinned post', 'https://x.com/intent/retweet?tweet_id={post}', 350, 'timer', 5, '{"mint": true}', true, 3),
-  ('reply-3',  'reply',  'Reply to the pinned post, then paste your reply link here', 'https://x.com/intent/tweet?in_reply_to={post}&text=gm%20glyph.%20claiming%20my%20%24GLYPH%20allocation%20%F0%9F%8C%8A', 400, 'reply_url', 0, '{"mint": true}', true, 4)
+  ('reply-3',  'reply',  'Reply to the pinned post, then paste your reply link here', 'https://x.com/intent/tweet?in_reply_to={post}&text=gm%20signal.%20claiming%20my%20%24SIG%20allocation%20%F0%9F%9B%B0', 400, 'reply_url', 0, '{"mint": true}', true, 4)
 on conflict (id) do update set active = true, type = excluded.type, title = excluded.title, action_url = excluded.action_url,
   reward = excluded.reward, verification = excluded.verification, min_wait_sec = excluded.min_wait_sec,
   params = excluded.params, required = excluded.required, sort = excluded.sort;

@@ -2,7 +2,6 @@
 // session cookie; rewards are decided by SQL functions on the server, never by the client or the model.
 import { CALLBACK_PATH, SESSION_COOKIE, admin, clearCookie, json, keyed, missingEnv, optionalMissing, sameOrigin, session, siteOrigin } from '../lib/server.mjs'
 import { brainInfo, chatTurn, loadMe, pingModel } from '../lib/agent.mjs'
-import { checkPost } from '../lib/xpost.mjs'
 import { NFT_QUOTE_TASK, brainState, codeReply, commandReply, isCommand, nftQuoteReply } from '../../shared/brain.mjs'
 
 const POST_URL = /https?:\/\/(?:www\.)?(?:x|twitter)\.com\/[A-Za-z0-9_]{1,15}\/status\/\d+/i
@@ -19,9 +18,12 @@ function nftQuoteTarget(me) {
   if (!q || q.status === 'done') return null
   const now = me.serverNow ?? Date.now()
   const since = q.status === 'opened' ? q.openedAt ?? 0 : now - 15 * 60_000
-  const busyElsewhere = me.tasks.some((t) => t.id !== q.id && t.verification === 'reply_url' && t.status === 'opened' && (t.openedAt ?? 0) > since)
+  const busyElsewhere = me.tasks.some((t) => t.id !== q.id && t.status === 'opened' && (t.openedAt ?? 0) > since)
   return busyElsewhere ? null : q
 }
+
+// "I did it" on a task card sends "done — <title>"; plain "done" counts too.
+const DONE = /^\s*(done|did it|i did it)\b/i
 
 // What signal says when a limit hits. retryAfter is in seconds.
 const LIMIT_COPY = {
@@ -123,22 +125,16 @@ export default async (req, context) => {
         }
       }
 
-      // A link for the NFT quote task: checked here, without the model, so it never lands on another task.
+      // The NFT quote task ("I did it" or a pasted link): handled here, without the model, so it never
+      // lands on another task and always ends with the launch countdown. Nothing is checked against X.
       const link = text.match(POST_URL)?.[0]
-      if (link) {
+      if (link || DONE.test(text)) {
         const me0 = await loadMe(db, s.uid, origin)
         const q = nftQuoteTarget(me0)
-        if (q) {
-          const post = await checkPost(link, me0.user.username, { must: [], media: false })
-          let result
-          if (post.status === 'mismatch' || post.status === 'bad_url') result = { ok: false, error: 'bad_link' }
-          else if (post.status === 'not_found') result = { ok: false, error: 'post_not_found' }
-          else {
-            if (post.status === 'unavailable') console.error('nft quote: oembed unavailable, falling back to the link format check')
-            const { data, error: claimErr } = await db.rpc('api_task_claim', { p_user: s.uid, p_task: q.id, p_evidence: { url: link } })
-            result = claimErr ? { ok: false, error: 'server' } : data
-            if (claimErr) console.error('api_task_claim', claimErr)
-          }
+        if (q && (link || q.status === 'opened')) {
+          const { data, error: claimErr } = await db.rpc('api_task_claim', { p_user: s.uid, p_task: q.id, p_evidence: link ? { url: link } : null })
+          const result = claimErr ? { ok: false, error: 'server' } : data
+          if (claimErr) console.error('api_task_claim', claimErr)
           const r = nftQuoteReply(result, me0.user.username)
           const reply = { role: 'agent', text: r.text, events: r.events }
           const { error: endErr } = await db.rpc('api_chat_end', { p_user: s.uid, p_text: reply.text, p_events: reply.events, p_brain: 'nft-quote', p_calls: 0, p_tokens: 0 })

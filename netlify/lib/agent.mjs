@@ -155,6 +155,23 @@ const parseArgs = (raw) => {
   }
 }
 
+// DeepSeek sometimes writes a tool call into the text instead of tool_calls, e.g.
+// `<function=verify_task>{"task_id":"like-3"}</function>`. Turn those back into real calls.
+const LEAKED_CALL = /<function=([a-z_]+)>?\s*(\{[\s\S]*?\})?\s*(?:<\/function>?|$)/gi
+const TOOL_NAMES = () => new Set(FUNCTIONS.map((f) => f.function?.name).filter(Boolean))
+// Anything that still looks like tool syntax must never reach the chat.
+const TOOL_JUNK = /<\/?function|<\|?\s*tool|｜tool|tool▁call/i
+
+function leakedCalls(content) {
+  const names = TOOL_NAMES()
+  const calls = []
+  for (const m of String(content ?? '').matchAll(LEAKED_CALL)) {
+    if (!names.has(m[1])) continue
+    calls.push({ id: `leak_${calls.length}_${Date.now()}`, type: 'function', function: { name: m[1], arguments: m[2] || '{}' } })
+  }
+  return calls
+}
+
 /** One turn: OpenAI-style messages and tool rounds until it speaks. */
 async function modelLoop({ system, history, text, exec, deadline, usage }) {
   const messages = [{ role: 'system', content: system }, ...toApiHistory(history, text)]
@@ -166,10 +183,16 @@ async function modelLoop({ system, history, text, exec, deadline, usage }) {
     usage.calls++
     usage.tokens += (res.usage?.prompt_tokens ?? 0) + (res.usage?.completion_tokens ?? 0)
     const msg = res.choices?.[0]?.message ?? {}
-    const calls = Array.isArray(msg.tool_calls) ? msg.tool_calls : []
-    said = (msg.content ?? '').trim()
+    let calls = Array.isArray(msg.tool_calls) ? msg.tool_calls : []
+    let content = msg.content ?? ''
+    if (!calls.length && TOOL_JUNK.test(content)) {
+      calls = leakedCalls(content)
+      if (calls.length) console.warn('model wrote tool calls as text; running them:', calls.map((c) => c.function.name).join(','))
+      content = content.replace(LEAKED_CALL, '')
+    }
+    said = TOOL_JUNK.test(content) ? '' : content.trim()
     if (!calls.length) break
-    messages.push({ role: 'assistant', content: msg.content ?? '', tool_calls: calls })
+    messages.push({ role: 'assistant', content, tool_calls: calls })
     for (const c of calls) {
       const r = await exec(c.function?.name ?? '', parseArgs(c.function?.arguments))
       messages.push({ role: 'tool', tool_call_id: c.id, content: JSON.stringify(r) })

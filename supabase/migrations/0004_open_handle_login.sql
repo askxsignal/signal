@@ -1,4 +1,4 @@
--- glyph — sign-in is just the handle: no device claim, no proof post. Run after 0003. Safe to run more than once.
+-- signal — sign-in is just the handle: no device claim, no proof post. Run after 0003. Safe to run more than once.
 --
 -- Because anyone can type any handle, the one thing that must not be changeable from the chat is the
 -- payout wallet: once saved it is locked (an admin can clear it in SQL). The per-IP limits on new

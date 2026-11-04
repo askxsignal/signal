@@ -14,7 +14,9 @@ export const BRAND = {
   // X campaign: the account to follow and the post to like / repost / reply to / quote.
   // Task links are built from these two values on the server and in demo mode.
   xHandle: 'asksignal',
-  postId: '0000000000000000000',
+  postId: '2118419578657312983',
+
+  github: 'https://github.com/askxsignal/signal', // source code link in the footer; empty to hide
 
   telegram: '', // e.g. 'https://t.me/asksignal' — leave empty to hide
 
@@ -31,9 +33,11 @@ export const BRAND = {
   },
 
   // The launch: shown with a live countdown after the last trial (the NFT quote). ISO time with offset.
+  // Leave both empty until the date is final: the site and signal then say "not set yet, watch @handle".
+  // e.g. at: '2026-11-09T18:00:00Z', label: 'nov 9, 18:00 utc'
   launch: {
-    at: '2026-11-09T18:00:00Z',
-    label: 'nov 9, 18:00 utc',
+    at: '',
+    label: '',
   },
 }
 

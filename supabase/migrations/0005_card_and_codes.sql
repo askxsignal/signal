@@ -1,13 +1,13 @@
--- glyph — the profile card task, the card's standing (rank, diver number) and secret phrases.
+-- signal — the profile card task, the card's standing (rank, operator number) and secret phrases.
 -- Run after 0004. Safe to run more than once.
 
 -- ---------------------------------------------------------------- the card task
--- The last required trial: post your glyph card on X and paste the link. The server checks through
--- X's public oEmbed that the post is yours, carries an image and mentions glyph (params.must / params.media).
+-- The last required trial: post your operator pass on X and paste the link. The server checks through
+-- X's public oEmbed that the post is yours, carries an image and mentions signal (params.must / params.media).
 insert into tasks (id, type, title, action_url, reward, verification, min_wait_sec, params, required, sort) values
-  ('card-1', 'card', 'Post your glyph card on X, then paste the link here',
-     'https://x.com/intent/tweet?text=my%20%24GLYPH%20card%20from%20the%20deep.%20ask%20glyph%20anything%3A&url={ref}',
-     750, 'reply_url', 0, '{"must": ["glyph"], "media": true}', true, 5)
+  ('card-1', 'card', 'Post your operator pass on X, then paste the link here',
+     'https://x.com/intent/tweet?text=my%20%24SIG%20operator%20pass.%20ask%20signal%20anything%3A&url={ref}',
+     750, 'reply_url', 0, '{"must": ["signal"], "media": true}', true, 5)
 on conflict (id) do update set type = excluded.type, title = excluded.title, action_url = excluded.action_url,
   reward = excluded.reward, verification = excluded.verification, min_wait_sec = excluded.min_wait_sec,
   params = excluded.params, required = excluded.required, sort = excluded.sort;
@@ -16,7 +16,7 @@ update tasks set sort = 6 where id = 'quote-1';
 update tasks set sort = 7 where id = 'invite-2';
 
 -- ---------------------------------------------------------------- api_me + standing
--- Same as 0001, plus `standing`: rank by allocation, how many divers there are, this diver's number.
+-- Same as 0001, plus `standing`: rank by allocation, how many operators there are, this operator's number.
 create or replace function public.api_me(p_user uuid) returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
@@ -66,7 +66,7 @@ revoke all on public.secret_codes from anon, authenticated;
 -- lowercase, anything that is not a letter, digit or $ becomes a space, spaces collapse.
 create or replace function public.norm_code(p text) returns text
 language sql immutable set search_path = public as $$
-  select btrim(regexp_replace(lower(coalesce(p, '')), '[^a-z0-9а-яё$]+', ' ', 'g'))
+  select btrim(regexp_replace(lower(coalesce(p, '')), '[^a-z0-9\u0430-\u044f\u0451$]+', ' ', 'g'))
 $$;
 
 -- Returns {matched:false} when the message holds no active phrase; otherwise

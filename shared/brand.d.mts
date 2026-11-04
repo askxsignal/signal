@@ -1,6 +1,6 @@
 export const BRAND: {
   name: string; project: string; site: string; ticker: string; unit: string; tagline: string; siteTitle: string; description: string
-  xHandle: string; postId: string; telegram: string; token: { ca: string; chain: string }
+  xHandle: string; postId: string; github: string; telegram: string; token: { ca: string; chain: string }
   swap: { url: string }
   launch: { at: string; label: string }
 }

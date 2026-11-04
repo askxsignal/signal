@@ -1,10 +1,10 @@
--- glyph — limits that protect the model key. Run after 0001. Self-contained, safe to run more than once.
+-- signal — limits that protect the model key. Run after 0001. Self-contained, safe to run more than once.
 --
 -- Layers (all numbers live in app_config and can be changed without a deploy):
 --   1. one message at a time per user (a 20 s lock, released when the answer is saved)
 --   2. message rate per user: per minute / per hour / per day
 --   3. message rate per IP per hour (several X accounts from one machine share it)
---   4. Model budget per user per day: calls and tokens; when spent, glyph keeps answering with the
+--   4. Model budget per user per day: calls and tokens; when spent, signal keeps answering with the
 --      scripted brain (tasks still work), it just stops spending the key
 --   5. Model budget for the whole site per day (tokens): a circuit breaker for the bill
 -- Message limits block the message (HTTP 429). Model budgets never block, they downgrade the brain.
