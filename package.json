@@ -1,0 +1,44 @@
+{
+  "name": "signal",
+  "description": "a broken ascii satellite that guards the $SIG reserve: a conversational agent with X sign-in, server-side rewards and on-demand compressed NFTs on Solana",
+  "homepage": "https://asksignal.chat",
+  "keywords": [
+    "agent",
+    "ascii",
+    "solana",
+    "compressed-nft",
+    "bubblegum",
+    "netlify",
+    "postgres",
+    "x-oauth"
+  ],
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5193 --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "build:preview": "vite build --mode preview",
+    "preview": "vite preview --port 5193"
+  },
+  "dependencies": {
+    "@metaplex-foundation/mpl-bubblegum": "^6.0.0",
+    "@metaplex-foundation/mpl-core": "^1.10.0",
+    "@metaplex-foundation/mpl-toolbox": "^0.11.5",
+    "@metaplex-foundation/umi": "^1.6.0",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.6.0",
+    "@resvg/resvg-wasm": "^2.6.2",
+    "@supabase/supabase-js": "^2.118.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "~7.3.7",
+    "vite-plugin-singlefile": "^2.3.4"
+  },
+  "license": "MIT",
+  "overrides": {
+    "rpc-websockets": {
+      "uuid": "11.1.0"
+    }
+  }
+}
