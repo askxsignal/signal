@@ -1,7 +1,7 @@
 export type Theme = 'dark' | 'light';
 export type Mode = 'idle' | 'thinking' | 'listening';
-/** Every glyph the atlas holds. Order matters only for lookups. */
-export declare const GLYPHS = " .,:;'`-_=+*#%@&$|/\\()<>[]{}~^o0x18SX";
+/** Every character the atlas holds. Order matters only for lookups. */
+export declare const CHARS = " .,:;'`-_=+*#%@&$|/\\()<>[]{}~^o0x18SX";
 /** Ink slots in the atlas (rows). */
 export declare const INK: {
     readonly main: 0;
@@ -16,7 +16,7 @@ export declare const PALETTES: Record<Theme, {
     glow: number;
     bg: string;
 }>;
-/** A frame being composed: one glyph, ink and alpha per cell. Later writes win. */
+/** A frame being composed: one character, ink and alpha per cell. Later writes win. */
 export declare class Frame {
     cols: number;
     rows: number;

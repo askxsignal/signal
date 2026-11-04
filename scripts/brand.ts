@@ -3,7 +3,7 @@
 // each canvas is exposed on window.__brand as a PNG data URL.
 
 import { BRAND } from '../shared/brand.mjs'
-import { Frame, GLYPHS, INK, PALETTES, drawPlanet, drawRing, drawSatellite, drawStars } from '../shared/sky.mjs'
+import { Frame, CHARS, INK, PALETTES, drawPlanet, drawRing, drawSatellite, drawStars } from '../shared/sky.mjs'
 
 const CELL = 14
 const P = PALETTES.dark
@@ -27,7 +27,7 @@ function paint(ctx: CanvasRenderingContext2D, f: Frame, cell: number) {
       if (f.a[k] <= 0.01) continue
       ctx.globalAlpha = f.a[k]
       ctx.fillStyle = ctx.shadowColor = P.inks[f.ink[k]]
-      ctx.fillText(GLYPHS[f.ch[k]], x * cell + cell / 2, y * cell + cell / 2 + 0.5)
+      ctx.fillText(CHARS[f.ch[k]], x * cell + cell / 2, y * cell + cell / 2 + 0.5)
     }
   ctx.globalAlpha = 1
   ctx.shadowBlur = 0

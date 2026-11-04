@@ -1,4 +1,4 @@
--- glyph — the glyph card as a compressed NFT (Solana, Metaplex Bubblegum v2), minted on demand.
+-- signal — the operator pass as a compressed NFT (Solana, Metaplex Bubblegum v2), minted on demand.
 -- Run after 0009. Safe to run more than once.
 --
 -- Nothing is minted in advance. When an allowed person presses "Mint", the server builds one mint for

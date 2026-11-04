@@ -1,4 +1,4 @@
--- glyph — sign-in through X (OAuth 2.0) replaces typing a handle. Run after 0005. Safe to run more than once.
+-- signal — sign-in through X (OAuth 2.0) replaces typing a handle. Run after 0005. Safe to run more than once.
 --
 -- Accounts made by typing a handle have x_id = 'h:<handle>'. When the real owner of that handle signs in
 -- with X for the first time, they take that account over (progress kept). Its wallet is cleared, because

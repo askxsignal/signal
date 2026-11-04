@@ -190,8 +190,15 @@ export class App {
 
     this.ask = h('h1', { class: 'ask' }, TITLES[0])
     const chips = h('div', { class: 'chips' }, ...CHIPS.map((c) => h('button', { class: 'chip', type: 'button', onclick: () => this.submit(c) }, c)))
+    const links = [
+      { label: `x @${BRAND.xHandle}`, url: `https://x.com/${BRAND.xHandle}` },
+      BRAND.github ? { label: 'github', url: BRAND.github } : null,
+      BRAND.telegram ? { label: 'telegram', url: BRAND.telegram } : null,
+    ].filter((l): l is { label: string; url: string } => !!l)
+    const linkRow = h('nav', { class: 'links', 'aria-label': 'Links' },
+      ...links.map((l) => h('a', { href: l.url, target: '_blank', rel: 'noopener' }, l.label)))
     const fine = h('p', { class: 'fine' }, `${BRAND.name} checks with timers and links · allocations are pending and reviewed before any drop · airdrop planned, not promised · not financial advice · not affiliated with X`)
-    this.dock = h('div', { class: 'dock' }, this.ask, form, chips, fine)
+    this.dock = h('div', { class: 'dock' }, this.ask, form, chips, fine, linkRow)
 
     this.menu = h('div', { class: 'menu', role: 'menu', hidden: true })
     this.root.append(this.top, h('main', { class: 'stage' }, this.thread, this.dock), this.menu)
@@ -707,12 +714,7 @@ export class App {
         open.append(svg(ICON.out))
         row.append(open)
       }
-      if (t.status === 'opened' && t.verification === 'timer') {
-        const done = this.btn('I did it', '', () => this.submit(`done — ${t.title.toLowerCase()}`))
-        const status = h('span', { class: 'status wait' })
-        row.append(done, status)
-        this.countdown(t, done as HTMLButtonElement, status)
-      }
+      row.append(...this.doneParts(t))
       if (t.verification === 'reply_url') row.append(h('span', { class: 'status' }, t.type === 'reply'
         ? 'post the reply, then paste its link in the chat ↓'
         : t.status === 'opened' ? 'paste your post link in the chat ↓' : 'post, then paste the link'))
@@ -722,6 +724,15 @@ export class App {
       h('div', { class: 'card-title' }, t.title),
       row,
     )
+  }
+
+  /** "I did it" + the few-second countdown, once a timer task has been opened. */
+  private doneParts(t: Task): HTMLElement[] {
+    if (t.status !== 'opened' || t.verification !== 'timer') return []
+    const done = this.btn('I did it', '', () => this.submit(`done — ${t.title.toLowerCase()}`))
+    const status = h('span', { class: 'status wait' })
+    this.countdown(t, done as HTMLButtonElement, status)
+    return [done, status]
   }
 
   private countdown(t: Task, btn: HTMLButtonElement, status: HTMLElement) {
@@ -819,7 +830,7 @@ export class App {
       const href = `https://x.com/${BRAND.xHandle}/status/${BRAND.postId}`
       const post = h('a', { class: 'btn ghost', href, target: '_blank', rel: 'noopener', onclick: () => this.openTask(task, post) }, 'Open post → Quote')
       post.append(svg(ICON.out))
-      row.append(post)
+      row.append(post, ...this.doneParts(task))
     }
     if (this.canShareFiles()) row.append(this.btn('Share', 'ghost', () => this.shareCard(art.blob, name)))
     else row.append(this.btn('Save', 'ghost', async () => this.saveCard(await art.blob, name)))
@@ -835,8 +846,8 @@ export class App {
     }
     if (task?.status === 'done') row.append(h('span', { class: 'status ok' }, '✓ verified'))
     else if (task) parts.push(h('div', { class: 'card-note' }, matchMedia('(pointer: coarse)').matches
-      ? '1. save the pass  2. copy text  3. open post → quote: tap repost ⟲ → quote  4. paste the text, attach the pass, post  5. paste your quote link here ↓'
-      : '1. open post → quote: click repost ⟲ → quote  2. copy image → paste it there (ctrl/⌘ v)  3. copy text → paste it there  4. post  5. paste your quote link here ↓'))
+      ? '1. save the pass  2. copy text  3. open post → quote: tap repost ⟲ → quote  4. paste the text, attach the pass, post  5. come back and press "I did it"'
+      : '1. open post → quote: click repost ⟲ → quote  2. copy image → paste it there (ctrl/⌘ v)  3. copy text → paste it there  4. post  5. come back and press "I did it"'))
     return parts
   }
 
@@ -1156,7 +1167,7 @@ export class App {
       const href = `https://x.com/${BRAND.xHandle}/status/${BRAND.postId}`
       const post = h('a', { class: 'btn ghost', href, target: '_blank', rel: 'noopener', onclick: () => this.openTask(task, post) }, 'Open post → Quote')
       post.append(svg(ICON.out))
-      row.append(post)
+      row.append(post, ...this.doneParts(task))
     }
     if (this.canShareFiles()) row.append(this.btn('Share', 'ghost', () => this.shareCard(blob(), name)))
     else row.append(this.btn('Save', 'ghost', async () => this.saveCard(await blob(), name)))
@@ -1171,8 +1182,8 @@ export class App {
       h('button', { class: 'mono-box quote-text', type: 'button', title: 'Tap to copy', onclick: copyText }, quote),
       h('div', { class: 'card-row' }, this.btn('Copy text', '', copyText))))
     parts.push(h('div', { class: 'card-note' }, matchMedia('(pointer: coarse)').matches
-      ? '1. save the nft image  2. copy text  3. open post → quote: tap repost ⟲ → quote  4. paste the text, attach the image, post  5. paste your quote link here ↓'
-      : '1. open post → quote: click repost ⟲ → quote  2. copy image → paste it there (ctrl/⌘ v)  3. copy text → paste it there  4. post  5. paste your quote link here ↓'))
+      ? '1. save the nft image  2. copy text  3. open post → quote: tap repost ⟲ → quote  4. paste the text, attach the image, post  5. come back and press "I did it"'
+      : '1. open post → quote: click repost ⟲ → quote  2. copy image → paste it there (ctrl/⌘ v)  3. copy text → paste it there  4. post  5. come back and press "I did it"'))
     return parts
   }
 

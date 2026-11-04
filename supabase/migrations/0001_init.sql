@@ -1,4 +1,4 @@
--- glyph — schema for the chat-quest site. Self-contained, safe to run more than once.
+-- signal — schema for the chat-quest site. Self-contained, safe to run more than once.
 -- The browser never touches the database: Netlify functions call the api_* functions below with the
 -- service role key and pass the signed-in user explicitly. Rewards are decided here, never by the
 -- client and never by the language model.
@@ -79,7 +79,7 @@ create table if not exists public.chat_messages (
   role       text not null check (role in ('user', 'agent')),
   text       text not null,
   events     jsonb not null default '[]',
-  brain      text,                              -- 'model' | 'scripted' for glyph's rows
+  brain      text,                              -- 'model' | 'scripted' for signal's rows
   created_at timestamptz not null default now()
 );
 create index if not exists chat_messages_user_idx on public.chat_messages (user_id, id desc);
@@ -389,8 +389,8 @@ insert into tasks (id, type, title, action_url, reward, verification, min_wait_s
   ('like-1',   'like',   'Like the pinned post',   'https://x.com/intent/like?tweet_id={post}',        250, 'timer', 5, '{}', true, 2),
   ('repost-1', 'repost', 'Repost the pinned post', 'https://x.com/intent/retweet?tweet_id={post}',     350, 'timer', 5, '{}', true, 3),
   ('reply-1',  'reply',  'Reply to the pinned post, then paste your reply link here', 'https://x.com/intent/tweet?in_reply_to={post}', 400, 'reply_url', 0, '{}', true, 4),
-  ('quote-1',  'post',   'Post about glyph with your invite link, then paste the link here',
-     'https://x.com/intent/tweet?text=talked%20my%20way%20into%20the%20%24GLYPH%20reserve.%20your%20turn%3A&url={ref}', 500, 'reply_url', 0, '{}', false, 6),
+  ('quote-1',  'post',   'Post about signal with your invite link, then paste the link here',
+     'https://x.com/intent/tweet?text=talked%20my%20way%20into%20the%20%24SIG%20reserve.%20your%20turn%3A&url={ref}', 500, 'reply_url', 0, '{}', false, 6),
   ('invite-2', 'invite', 'Bring 2 friends who finish a task', null, 1000, 'referral', 0, '{"need": 2}', false, 7)
 on conflict (id) do update set type = excluded.type, title = excluded.title, action_url = excluded.action_url,
   reward = excluded.reward, verification = excluded.verification, min_wait_sec = excluded.min_wait_sec,

@@ -1,7 +1,7 @@
-// The live sky: stars, the earth turning below, debris, far satellites and signal itself, all as glyph
-// cells on one canvas. Pings (clicks, sends) and bursts (rewards) are glyph-only too.
+// The live sky: stars, the earth turning below, debris, far satellites and signal itself, all as character
+// cells on one canvas. Pings (clicks, sends) and bursts (rewards) are text-only too.
 
-import { Frame, GLYPHS, INK, PALETTES, drawBeam, drawPlanet, drawRing, drawSatellite, drawStars, hash2, type Mode, type Theme } from '../../shared/sky.mjs'
+import { Frame, CHARS, INK, PALETTES, drawBeam, drawPlanet, drawRing, drawSatellite, drawStars, hash2, type Mode, type Theme } from '../../shared/sky.mjs'
 
 export type { Mode, Theme } from '../../shared/sky.mjs'
 
@@ -153,7 +153,7 @@ export class Orbit {
     const P = PALETTES[this.theme]
     this.pad = P.glow ? Math.round(c * 0.3) : 0
     this.slot = c + this.pad * 2
-    this.atlas.width = this.slot * GLYPHS.length
+    this.atlas.width = this.slot * CHARS.length
     this.atlas.height = this.slot * P.inks.length
     const a = this.atlas.getContext('2d')!
     a.clearRect(0, 0, this.atlas.width, this.atlas.height)
@@ -164,7 +164,7 @@ export class Orbit {
       a.fillStyle = ink
       a.shadowColor = ink
       a.shadowBlur = P.glow ? c * P.glow : 0
-      for (let i = 1; i < GLYPHS.length; i++) a.fillText(GLYPHS[i], i * this.slot + this.slot / 2, row * this.slot + this.slot / 2 + c * 0.04)
+      for (let i = 1; i < CHARS.length; i++) a.fillText(CHARS[i], i * this.slot + this.slot / 2, row * this.slot + this.slot / 2 + c * 0.04)
     })
   }
 
@@ -280,7 +280,7 @@ export class Orbit {
     const slot = this.slot
     ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-    // tinted squares first, so glyphs sit on top of them
+    // tinted squares first, so characters sit on top of them
     const inks = PALETTES[this.theme].inks
     const gap = Math.max(1, Math.round(this.dpr))
     for (let y = 0; y < rows; y++) {

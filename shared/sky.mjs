@@ -1,10 +1,10 @@
 // Shared by the site (src/space, src/card.ts), the brand renders and the NFT image on the server.
 // Plain JS so Netlify functions import it as-is. Types: sky.d.mts.
-// Shared drawing primitives for the orbit: everything is a grid of cells, one glyph per cell.
+// Shared drawing primitives for the orbit: everything is a grid of cells, one character per cell.
 // The live sky (engine.ts) and the operator pass (card.ts) both draw with these, so the satellite on
 // your pass is the same machine you talk to.
-/** Every glyph the atlas holds. Order matters only for lookups. */
-export const GLYPHS = " .,:;'`-_=+*#%@&$|/\\()<>[]{}~^o0x18SX";
+/** Every character the atlas holds. Order matters only for lookups. */
+export const CHARS = " .,:;'`-_=+*#%@&$|/\\()<>[]{}~^o0x18SX";
 /** Ink slots in the atlas (rows). */
 export const INK = { main: 0, dim: 1, hot: 2, faint: 3, alert: 4 };
 export const PALETTES = {
@@ -13,14 +13,14 @@ export const PALETTES = {
     // the same sky printed on telemetry paper
     light: { inks: ['#14261c', '#7c8a82', '#0b7a43', '#9aa59f', '#c4372a'], glow: 0, bg: '#ebe8df' },
 };
-/** A frame being composed: one glyph, ink and alpha per cell. Later writes win. */
+/** A frame being composed: one character, ink and alpha per cell. Later writes win. */
 export class Frame {
     cols;
     rows;
     ch;
     ink;
     a;
-    bg; // a tinted square behind the glyph (0 = none): what makes bodies read as solid
+    bg; // a tinted square behind the character (0 = none): what makes bodies read as solid
     constructor(cols, rows) {
         this.cols = cols;
         this.rows = rows;
@@ -40,7 +40,7 @@ export class Frame {
         y = Math.round(y);
         if (x < 0 || y < 0 || x >= this.cols || y >= this.rows || a <= 0.01)
             return;
-        const i = GLYPHS.indexOf(ch);
+        const i = CHARS.indexOf(ch);
         if (i <= 0)
             return;
         const k = y * this.cols + x;

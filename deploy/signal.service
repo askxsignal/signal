@@ -1,0 +1,22 @@
+[Unit]
+Description=signal web server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=signal
+Group=signal
+WorkingDirectory=/srv/signal
+EnvironmentFile=/etc/signal.env
+Environment=NODE_OPTIONS=--max-old-space-size=768
+ExecStart=/usr/bin/node server.mjs
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/srv/signal
+
+[Install]
+WantedBy=multi-user.target

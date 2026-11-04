@@ -1,4 +1,4 @@
--- glyph — sign-in by typing an X handle (no X OAuth). Run after 0001 and 0002. Safe to run more than once.
+-- signal — sign-in by typing an X handle (no X OAuth). Run after 0001 and 0002. Safe to run more than once.
 --
 -- How a handle stays yours without OAuth:
 --   • the first device that signs in with a handle claims it (the server keeps a hash of a random
@@ -52,7 +52,7 @@ begin
 
   -- Claimed by another device: hand out (or reuse) a short-lived proof code.
   if p.verify_code is null or p.verify_expires < now() then
-    code := 'glyph-' || substr(md5(gen_random_uuid()::text), 1, 6);
+    code := 'signal-' || substr(md5(gen_random_uuid()::text), 1, 6);
     update profiles set verify_code = code, verify_expires = now() + interval '30 minutes' where id = p.id;
   else
     code := p.verify_code;

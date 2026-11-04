@@ -16,6 +16,8 @@ export const BRAND = {
   xHandle: 'asksignal',
   postId: '0000000000000000000',
 
+  github: 'https://github.com/askxsignal/signal', // source code link in the footer; empty to hide
+
   telegram: '', // e.g. 'https://t.me/asksignal' — leave empty to hide
 
   // Token module. Leave ca empty until launch: the UI says "Launching soon".

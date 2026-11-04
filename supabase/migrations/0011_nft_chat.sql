@@ -1,4 +1,4 @@
--- glyph — /mintallo in the chat, glyph's messages after a mint, and the +1000 "quote your NFT" task.
+-- signal — /mintallo in the chat, signal's messages after a mint, and the +1000 "quote your NFT" task.
 -- Run after 0010. Safe to run more than once.
 
 -- ---------------------------------------------------------------- the NFT quote task
@@ -6,7 +6,7 @@
 -- refused by api_task_claim. Not required (does not gate the pitch). Checked like the card: the pasted
 -- link must be a public post by the signed-in account, not used for another task.
 insert into tasks (id, type, title, action_url, reward, verification, min_wait_sec, params, required, sort) values
-  ('nft-quote', 'nftquote', 'Quote the pinned post with your glyph NFT, then paste the link here',
+  ('nft-quote', 'nftquote', 'Quote the pinned post with your NFT, then paste the link here',
      'https://x.com/{handle}/status/{post}',
      1000, 'reply_url', 0, '{"needs": "nft"}', false, 8)
 on conflict (id) do update set active = true, type = excluded.type, title = excluded.title, action_url = excluded.action_url,
@@ -100,7 +100,7 @@ begin
   return jsonb_build_object('ok', true, 'openedAt', c.opened_at, 'completedAt', c.completed_at, 'now', now());
 end $$;
 
--- ---------------------------------------------------------------- glyph's messages after a mint
+-- ---------------------------------------------------------------- signal's messages after a mint
 -- Written once per person (the first time the server sees the mint landed). Returns true when it wrote
 -- them now, so the page shows them live exactly once; after a reload they come back with the history.
 create or replace function public.api_nft_announce(p_user uuid, p_messages jsonb) returns boolean

@@ -31,6 +31,8 @@ export function planTurn(text, state) {
   if (url) {
     const target = open.find((x) => x.verification === 'reply_url') ?? tasks.find((x) => x.verification === 'reply_url' && x.status !== 'done')
     if (target) return [{ tool: 'verify_task', input: { task_id: target.id, proof_url: url } }]
+    // Timer tasks: a pasted link just means "done" for the task they opened last.
+    if (open[0]) return [{ tool: 'verify_task', input: { task_id: open[0].id } }]
   }
   if (/\b(invite|referr?al|ref link|friends?)\b|инвайт|рефер|друз/i.test(t)) return [{ tool: 'show_invite', input: {} }]
   if (/\b(ca|contract|token address|chart|buy)\b|контракт/i.test(t)) return [{ tool: 'show_token', input: {} }]
@@ -61,7 +63,7 @@ export function scorePitch(text) {
 
 /** Turn tool results into signal's reply. */
 export function composeReply(text, state, results) {
-  const ru = /[а-яё]/i.test(text)
+  const ru = false // english only: signal answers in english whatever language it is spoken to in
   const any = (arr) => arr[Math.floor(Math.random() * arr.length)]
   const lines = []
   const next = (state.tasks ?? []).find((x) => x.required && x.status !== 'done')
@@ -82,9 +84,10 @@ export function composeReply(text, state, results) {
         `prove you're not static. ${tk.title.toLowerCase()}.`,
       ]))
       if (tk.type === 'card') lines.splice(lines.length - 1, 1, ru
-        ? 'последнее испытание: процитируй закреп со своим пропуском. скопируй картинку, открой пост → quote, кинь сюда ссылку.'
-        : any(['last trial: quote my pinned transmission with your operator pass. open it, repost → quote, attach the pass, bring me the link.', 'one more handshake. this is how i see you from up here — quote my pinned transmission with it and bring me the link.']))
+        ? 'последнее испытание: процитируй закреп со своим пропуском. скопируй картинку, открой пост → quote, запости и жми «i did it».'
+        : any(['last trial: quote my pinned transmission with your operator pass. open it, repost → quote, attach the pass, post, then press "i did it".', 'one more handshake. this is how i see you from up here — quote my pinned transmission with it, then tell me it is done.']))
       else if (tk.verification === 'reply_url') lines.push('paste the link to your post here when it is up. i check that it is really yours.')
+      else if (tk.type === 'reply' || tk.type === 'post') lines.push('post it, come back, press "i did it".')
     }
     if (tool === 'verify_task') {
       const r = result ?? {}
@@ -128,7 +131,7 @@ export function composeReply(text, state, results) {
     // After a successful check, nudge to the next step.
     if (verifiedNow) {
       const after = (state.tasks ?? []).find((x) => x.required && x.status !== 'done')
-      if (after?.type === 'card') lines.push(ru ? 'последнее испытание: твой пропуск. скопируй, запости, кинь ссылку.' : 'last trial: your operator pass. quote my pinned transmission with it and bring me the link.')
+      if (after?.type === 'card') lines.push(ru ? 'последнее испытание: твой пропуск. скопируй, запости, жми «i did it».' : 'last trial: your operator pass. quote my pinned transmission with it, then press "i did it".')
       else if (after) lines.push(`next: ${after.title.toLowerCase()}.`)
       else if (state.pitch && state.pitch.attempts === 0) lines.push('that is every trial. now convince me why you deserve more. one message, make it count.')
     }
@@ -245,7 +248,7 @@ export function followUp(results, stateAfter) {
 
 /** What signal says when a message holds a secret phrase (the server already credited it, or refused). */
 export function codeReply(result, text = '') {
-  const ru = /[а-яё]/i.test(text)
+  const ru = false // english only: signal answers in english whatever language it is spoken to in
   const any = (arr) => arr[Math.floor(Math.random() * arr.length)]
   const r = result ?? {}
   if (r.ok) return ru
@@ -324,7 +327,7 @@ export function mintTrialFollow(results, state) {
 /** Pressing "Get +1,000 $SIG" on the receipt: the quote task. */
 export function nftQuoteOffer(quote) {
   return {
-    text: `+${fmt(quote.reward)} ${U} is yours if you show it off: quote my pinned transmission with your nft and paste the link here.`,
+    text: `+${fmt(quote.reward)} ${U} is yours if you show it off: quote my pinned transmission with your nft, then press "i did it".`,
     events: [{ type: 'task', taskId: quote.id }],
   }
 }
@@ -352,7 +355,9 @@ export function nftQuoteReply(result, handle) {
     : e === 'post_not_found' ? 'i cannot see that post. make sure it is public, then paste it again in a minute.'
     : e === 'link_reused' ? 'that post already paid for another trial. quote the pinned transmission again, with your nft this time.'
     : e === 'need_nft' ? 'mint your nft first. type /mintallo.'
-    : 'static on the line. paste the link again in a minute.'
+    : e === 'not_opened' ? 'press "open post → quote" on the card first, then quote it.'
+    : e === 'too_early' ? `that was fast. give it ${Math.ceil(result.wait ?? 3)} more seconds and press it again.`
+    : 'static on the line. try again in a minute.'
   return { text, events: [] }
 }
 

@@ -3,7 +3,7 @@
 // callsign, your pending $SIG, signal's verdict and your rank. Drawn in the browser so it can be pasted into a post.
 
 import { BRAND } from '../shared/brand.mjs'
-import { Frame, GLYPHS, INK, PALETTES, drawPlanet, drawRing, drawSatellite, drawStars, fnv, rng, type Theme } from '../shared/sky.mjs'
+import { Frame, CHARS, INK, PALETTES, drawPlanet, drawRing, drawSatellite, drawStars, fnv, rng, type Theme } from '../shared/sky.mjs'
 
 export interface CardData {
   handle: string
@@ -119,7 +119,7 @@ function drawSky(ctx: CanvasRenderingContext2D, d: CardData, w: number, h: numbe
       ctx.globalAlpha = f.a[k]
       ctx.fillStyle = ink
       if (P.glow) ctx.shadowColor = ink
-      ctx.fillText(GLYPHS[f.ch[k]], x * CELL + CELL / 2, y * CELL + CELL / 2 + 0.5)
+      ctx.fillText(CHARS[f.ch[k]], x * CELL + CELL / 2, y * CELL + CELL / 2 + 0.5)
     }
   }
   ctx.restore()

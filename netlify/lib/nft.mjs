@@ -8,7 +8,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { BRAND } from '../../shared/brand.mjs'
-import { Frame, GLYPHS, INK, PALETTES, drawPlanet, drawRing, drawSatellite, drawStars, fnv, rng } from '../../shared/sky.mjs'
+import { Frame, CHARS, INK, PALETTES, drawPlanet, drawRing, drawSatellite, drawStars, fnv, rng } from '../../shared/sky.mjs'
 
 export const NFT_SIZE = 1200
 const C = { bg: '#06080c', ink: '#e7f5eb', ink2: '#9fb7a8', ink3: '#5e7568', line: 'rgba(159,227,184,0.18)', plate: 'rgba(6,8,12,0.82)', phos: '#9fe3b8', hot: '#effff3' }
@@ -33,7 +33,7 @@ export function verdict(n) {
 export const permitId = (handle, no) =>
   `SIG-${no != null ? String(no).padStart(4, '0') : '----'}-${fnv(String(handle).toLowerCase()).toString(16).slice(0, 4).toUpperCase().padStart(4, '0')}`
 
-/** The sky as SVG: tinted squares, then glyphs. */
+/** The sky as SVG: tinted squares, then characters. */
 function skySvg(f, cell, ox = 0, oy = 0) {
   const P = PALETTES.dark
   const rects = []
@@ -44,7 +44,7 @@ function skySvg(f, cell, ox = 0, oy = 0) {
       const px = ox + x * cell
       const py = oy + y * cell
       if (f.bg[k] > 0.01) rects.push(`<rect x="${px}" y="${py}" width="${cell - 2}" height="${cell - 2}" fill="${P.inks[f.ink[k] === INK.hot ? INK.main : f.ink[k]]}" fill-opacity="${f.bg[k].toFixed(2)}"/>`)
-      if (f.a[k] > 0.01) texts.push(`<text x="${px + (cell - 2) / 2}" y="${py + cell * 0.7}" fill="${P.inks[f.ink[k]]}" fill-opacity="${f.a[k].toFixed(2)}">${esc(GLYPHS[f.ch[k]])}</text>`)
+      if (f.a[k] > 0.01) texts.push(`<text x="${px + (cell - 2) / 2}" y="${py + cell * 0.7}" fill="${P.inks[f.ink[k]]}" fill-opacity="${f.a[k].toFixed(2)}">${esc(CHARS[f.ch[k]])}</text>`)
     }
   }
   return `<g>${rects.join('')}</g><g font-family="Geist Mono" font-weight="500" font-size="${Math.round(cell * 0.66)}" text-anchor="middle">${texts.join('')}</g>`
